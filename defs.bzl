@@ -1,7 +1,7 @@
 """
 Defines a bootlin_toolchain rule to allow toolchain customization.
 """
-
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load(
     "@bazel_bootlin//toolchains:toolchain_info.bzl",
     "ALL_TOOLS",
@@ -13,15 +13,7 @@ def _bootlin_toolchain_impl(rctx):
     buildroot_version = rctx.attr.buildroot_version
     platform_arch = AVAILABLE_TOOLCHAINS[architecture][buildroot_version]["platform_arch"]
 
-    rctx.download_and_extract(
-        url = ("https://toolchains.bootlin.com/downloads/releases/toolchains/" +
-               "{0}/tarballs/{0}--glibc--stable-{1}.tar.bz2").format(
-            architecture,
-            buildroot_version,
-        ),
-        sha256 = AVAILABLE_TOOLCHAINS[architecture][buildroot_version]["sha256"],
-        stripPrefix = "{0}--glibc--stable-{1}".format(architecture, buildroot_version),
-    )
+    files_workspace = "{}_files".format(rctx.attr.name)
 
     for tool in ALL_TOOLS:
         buildroot_tool = (
@@ -38,7 +30,7 @@ def _bootlin_toolchain_impl(rctx):
 #!/usr/bin/env bash
 exec external/{0}/bin/{1}-buildroot-linux-gnu-{2} $@
 """.format(
-                rctx.attr.name,
+                files_workspace,
                 platform_arch,
                 buildroot_tool,
             ),
@@ -61,8 +53,8 @@ exec external/{0}/bin/{1}-buildroot-linux-gnu-{2} $@
         template,
         {
             "{bazel_output_base}": bazel_output_base,
-            "{toolchain_workspace}": rctx.attr.name,
             "{bootlin_workspace}": template.workspace_name,
+            "{toolchain_workspace_files}": files_workspace,
             "{architecture}": architecture,
             "{buildroot_version}": buildroot_version,
             "{platform_arch}": platform_arch,
@@ -71,7 +63,7 @@ exec external/{0}/bin/{1}-buildroot-linux-gnu-{2} $@
         },
     )
 
-bootlin_toolchain = repository_rule(
+_bootlin_toolchain = repository_rule(
     attrs = {
         "architecture": attr.string(
             mandatory = True,
@@ -96,3 +88,34 @@ bootlin_toolchain = repository_rule(
     configure = True,
     implementation = _bootlin_toolchain_impl,
 )
+
+def bootlin_toolchain(**kwargs):
+    architecture = kwargs["architecture"]
+    buildroot_version = kwargs["buildroot_version"]
+    files_workspace = "{}_files".format(kwargs["name"])
+
+    http_archive(
+        name = files_workspace,
+        build_file_content = """
+filegroup(
+    name = "{files_workspace}",
+    srcs = glob(["**"]),
+    visibility = ["//visibility:public"],
+)
+
+filegroup(
+    name = "sysroot_ld",
+    srcs = glob(["**/ld-linux*.so.*"]),
+    visibility = ["//visibility:public"],
+)
+""".format(files_workspace = files_workspace),
+        url = ("https://toolchains.bootlin.com/downloads/releases/toolchains/" +
+               "{0}/tarballs/{0}--glibc--stable-{1}.tar.bz2").format(
+                   architecture,
+                   buildroot_version,
+        ),
+        sha256 = AVAILABLE_TOOLCHAINS[architecture][buildroot_version]["sha256"],
+        strip_prefix = "{0}--glibc--stable-{1}".format(architecture, buildroot_version),
+    )
+
+    _bootlin_toolchain(**kwargs)

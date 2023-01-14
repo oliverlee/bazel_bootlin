@@ -5,25 +5,20 @@ filegroup(name = "empty")
 
 filegroup(
     name = "all_files",
-    srcs = glob(["**"]),
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "sysroot_ld",
-    srcs = glob(["**/ld-linux*.so.*"]),
-    visibility = ["//visibility:public"],
+    srcs = [
+        "@{toolchain_workspace_files}",
+    ] + glob(["tool_wrappers/**"]),
 )
 
 cc_bootlin_toolchain_config(
     name = "toolchain_config",
     architecture = "{architecture}",
     bazel_output_base = "{bazel_output_base}",
-    buildroot_base = "{toolchain_workspace}",
+    buildroot_base = "{toolchain_workspace_files}",
     buildroot_version = "{buildroot_version}",
     extra_cxxflags = {extra_cxxflags},
     extra_ldflags = {extra_ldflags},
-    sysroot_ld = ":sysroot_ld",
+    sysroot_ld = "@{toolchain_workspace_files}//:sysroot_ld",
 )
 
 cc_toolchain(
