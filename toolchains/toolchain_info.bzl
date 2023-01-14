@@ -1,12 +1,12 @@
 AVAILABLE_TOOLCHAINS = {
     "x86-64": {
-        "2021.11-5": {
-            "sha256": "6fe812add925493ea0841365f1fb7ca17fd9224bab61a731063f7f12f3a621b0",
+        "2022.08-1": {
+            "sha256": "861c1e8ad0a66e4c28e7a1f8319d68080ab0ff8d16a765e65540f1957203a190",
             "platform_arch": "x86_64",
             "tool_prefix": "x86_64-buildroot-linux-gnu",
         },
-        "2022.08-1": {
-            "sha256": "861c1e8ad0a66e4c28e7a1f8319d68080ab0ff8d16a765e65540f1957203a190",
+        "2021.11-5": {
+            "sha256": "6fe812add925493ea0841365f1fb7ca17fd9224bab61a731063f7f12f3a621b0",
             "platform_arch": "x86_64",
             "tool_prefix": "x86_64-buildroot-linux-gnu",
         },
@@ -19,6 +19,11 @@ AVAILABLE_TOOLCHAINS = {
         },
     },
     "aarch64": {
+        "2022.08-1": {
+            "sha256": "844df3c99508030ee9cb1152cb182500bb9816ff01968f2e18591d51d766c9e7",
+            "platform_arch": "aarch64",
+            "tool_prefix": "aarch64-buildroot-linux-gnu",
+        },
         "2021.11-1": {
             "sha256": "dec070196608124fa14c3f192364c5b5b057d7f34651ad58ebb8fc87959c97f7",
             "platform_arch": "aarch64",
