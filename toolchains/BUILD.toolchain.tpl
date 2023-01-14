@@ -42,7 +42,7 @@ cc_toolchain(
 toolchain(
     name = "toolchain",
     exec_compatible_with = [
-        "@platforms//cpu:{platform_arch}",
+        "@platforms//cpu:x86_64",
         "@platforms//os:linux",
     ],
     target_compatible_with = [
