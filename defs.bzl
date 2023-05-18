@@ -94,6 +94,13 @@ def bootlin_toolchain(**kwargs):
     buildroot_version = kwargs["buildroot_version"]
     files_workspace = "{}_files".format(kwargs["name"])
 
+    identifier = "{arch}--{libc}--{variant}-{release}".format(
+        arch = architecture,
+        libc = "glibc",
+        variant = "bleeding-edge" if buildroot_version.endswith("_bleeding") else "stable",
+        release = buildroot_version.rstrip("_bleeding"),
+    )
+
     http_archive(
         name = files_workspace,
         build_file_content = """
@@ -110,12 +117,12 @@ filegroup(
 )
 """.format(files_workspace = files_workspace),
         url = ("https://toolchains.bootlin.com/downloads/releases/toolchains/" +
-               "{0}/tarballs/{0}--glibc--stable-{1}.tar.bz2").format(
+               "{}/tarballs/{}.tar.bz2").format(
                    architecture,
-                   buildroot_version,
+                   identifier,
         ),
         sha256 = AVAILABLE_TOOLCHAINS[architecture][buildroot_version]["sha256"],
-        strip_prefix = "{0}--glibc--stable-{1}".format(architecture, buildroot_version),
+        strip_prefix = identifier,
     )
 
     _bootlin_toolchain(**kwargs)

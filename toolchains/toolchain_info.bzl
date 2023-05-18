@@ -1,5 +1,10 @@
 AVAILABLE_TOOLCHAINS = {
     "x86-64": {
+        "2022.08-1_bleeding": {
+            "sha256": "9a09ac03001ef2a6cab391cc658fc2a32730b6a8f25614e97a91b9a79537fe33",
+            "platform_arch": "x86_64",
+            "tool_prefix": "x86_64-buildroot-linux-gnu",
+        },
         "2022.08-1": {
             "sha256": "861c1e8ad0a66e4c28e7a1f8319d68080ab0ff8d16a765e65540f1957203a190",
             "platform_arch": "x86_64",
