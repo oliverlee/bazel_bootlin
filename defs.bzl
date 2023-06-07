@@ -26,8 +26,7 @@ def _bootlin_toolchain_impl(rctx):
                 buildroot_version,
                 tool,
             ),
-            content = """
-#!/usr/bin/env bash
+            content = """#!/usr/bin/env bash
 exec external/{0}/bin/{1}-buildroot-linux-gnu-{2} $@
 """.format(
                 files_workspace,
