@@ -1,6 +1,7 @@
 """
 Defines a bootlin_toolchain rule to allow toolchain customization.
 """
+
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load(
     "@bazel_bootlin//toolchains:toolchain_info.bzl",
@@ -26,7 +27,7 @@ def _bootlin_toolchain_impl(rctx):
                 buildroot_version,
                 tool,
             ),
-            content = """#!/usr/bin/env bash
+            content = """#!/bin/bash
 exec external/{0}/bin/{1}-buildroot-linux-gnu-{2} $@
 """.format(
                 files_workspace,
@@ -117,8 +118,8 @@ filegroup(
 """.format(files_workspace = files_workspace),
         url = ("https://toolchains.bootlin.com/downloads/releases/toolchains/" +
                "{}/tarballs/{}.tar.bz2").format(
-                   architecture,
-                   identifier,
+            architecture,
+            identifier,
         ),
         sha256 = AVAILABLE_TOOLCHAINS[architecture][buildroot_version]["sha256"],
         strip_prefix = identifier,
