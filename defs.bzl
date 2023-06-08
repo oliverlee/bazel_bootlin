@@ -21,6 +21,7 @@ def _bootlin_toolchain_impl(rctx):
             "{}.br_real".format(tool) if tool in ["cpp", "gcc"] else tool
         )
 
+        # TODO simplify location
         rctx.file(
             "tool_wrappers/{0}/{1}/{0}-linux-gnu-{1}-{2}".format(
                 architecture,
@@ -55,11 +56,10 @@ exec external/{0}/bin/{1}-buildroot-linux-gnu-{2} $@
             "{bazel_output_base}": bazel_output_base,
             "{bootlin_workspace}": template.workspace_name,
             "{toolchain_workspace_files}": files_workspace,
-            "{architecture}": architecture,
+            "{target_arch}": architecture,
             "{buildroot_version}": buildroot_version,
-            "{platform_arch}": platform_arch,
-            "{extra_cxxflags}": as_string(rctx.attr.extra_cxxflags),
-            "{extra_ldflags}": as_string(rctx.attr.extra_ldflags),
+            "{extra_cxx_flags}": as_string(rctx.attr.extra_cxx_flags),
+            "{extra_link_flags}": as_string(rctx.attr.extra_link_flags),
         },
     )
 
@@ -71,17 +71,13 @@ _bootlin_toolchain = repository_rule(
         "buildroot_version": attr.string(
             mandatory = True,
         ),
-        "extra_cxxflags": attr.string_list(
+        "extra_cxx_flags": attr.string_list(
             default = [],
             doc = "Additional flags used for C++ compile actions.",
         ),
-        "extra_ldflags": attr.string_list(
+        "extra_link_flags": attr.string_list(
             default = [],
             doc = "Additional flags used for link actions.",
-        ),
-        "extra_toolchain_constraints": attr.string_list(
-            default = [],  # TODO
-            doc = "Additional platform constraints beyond `cpu` and `os`.",
         ),
     },
     local = True,
@@ -107,12 +103,6 @@ def bootlin_toolchain(**kwargs):
 filegroup(
     name = "{files_workspace}",
     srcs = glob(["**"]),
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "sysroot_ld",
-    srcs = glob(["**/ld-linux*.so.*"]),
     visibility = ["//visibility:public"],
 )
 """.format(files_workspace = files_workspace),

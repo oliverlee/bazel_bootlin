@@ -1,5 +1,5 @@
 # //:BUILD.bazel
-load("@{bootlin_workspace}//toolchains:toolchains.bzl", "cc_bootlin_toolchain_config")
+load("@{bootlin_workspace}//toolchains:cc_toolchain_config.bzl", "cc_toolchain_config")
 
 filegroup(name = "empty")
 
@@ -10,15 +10,14 @@ filegroup(
     ] + glob(["tool_wrappers/**"]),
 )
 
-cc_bootlin_toolchain_config(
+cc_toolchain_config(
     name = "toolchain_config",
-    architecture = "{architecture}",
-    bazel_output_base = "{bazel_output_base}",
-    buildroot_base = "{toolchain_workspace_files}",
+    target_arch = "{target_arch}",
     buildroot_version = "{buildroot_version}",
-    extra_cxxflags = {extra_cxxflags},
-    extra_ldflags = {extra_ldflags},
-    sysroot_ld = "@{toolchain_workspace_files}//:sysroot_ld",
+    toolchain_files_workspace = "{toolchain_workspace_files}",
+    bazel_output_base = "{bazel_output_base}",
+    extra_cxx_flags = {extra_cxx_flags},
+    extra_link_flags = {extra_link_flags},
 )
 
 cc_toolchain(
@@ -41,7 +40,7 @@ toolchain(
         "@platforms//os:linux",
     ],
     target_compatible_with = [
-        "@platforms//cpu:{platform_arch}",
+        "@platforms//cpu:{}".format("{target_arch}".replace("-", "_")),
         "@platforms//os:linux",
     ],
     toolchain = "cc_toolchain",
