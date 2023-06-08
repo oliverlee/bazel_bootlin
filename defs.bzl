@@ -6,13 +6,15 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load(
     "@bazel_bootlin//toolchains:toolchain_info.bzl",
     "ALL_TOOLS",
-    "AVAILABLE_TOOLCHAINS",
+    "TOOLCHAIN_INFO",
 )
 
 def _bootlin_toolchain_impl(rctx):
     architecture = rctx.attr.architecture
+    libc_impl = rctx.attr.libc_impl
     buildroot_version = rctx.attr.buildroot_version
-    platform_arch = AVAILABLE_TOOLCHAINS[architecture][buildroot_version]["platform_arch"]
+
+    platform_arch = architecture.replace("-", "_")
 
     files_workspace = "{}_files".format(rctx.attr.name)
 
@@ -57,6 +59,7 @@ exec external/{0}/bin/{1}-buildroot-linux-gnu-{2} $@
             "{bootlin_workspace}": template.workspace_name,
             "{toolchain_workspace_files}": files_workspace,
             "{target_arch}": architecture,
+            "{libc_impl}": libc_impl,
             "{buildroot_version}": buildroot_version,
             "{extra_cxx_flags}": as_string(rctx.attr.extra_cxx_flags),
             "{extra_link_flags}": as_string(rctx.attr.extra_link_flags),
@@ -66,6 +69,9 @@ exec external/{0}/bin/{1}-buildroot-linux-gnu-{2} $@
 _bootlin_toolchain = repository_rule(
     attrs = {
         "architecture": attr.string(
+            mandatory = True,
+        ),
+        "libc_impl": attr.string(
             mandatory = True,
         ),
         "buildroot_version": attr.string(
@@ -87,16 +93,16 @@ _bootlin_toolchain = repository_rule(
 
 def bootlin_toolchain(**kwargs):
     architecture = kwargs["architecture"]
+    libc_impl = kwargs["libc_impl"]
     buildroot_version = kwargs["buildroot_version"]
+
+    identifier = "--".join([
+        architecture,
+        libc_impl,
+        buildroot_version,
+    ])
+
     files_workspace = "{}_files".format(kwargs["name"])
-
-    identifier = "{arch}--{libc}--{variant}-{release}".format(
-        arch = architecture,
-        libc = "glibc",
-        variant = "bleeding-edge" if buildroot_version.endswith("_bleeding") else "stable",
-        release = buildroot_version.rstrip("_bleeding"),
-    )
-
     http_archive(
         name = files_workspace,
         build_file_content = """
@@ -111,7 +117,7 @@ filegroup(
             architecture,
             identifier,
         ),
-        sha256 = AVAILABLE_TOOLCHAINS[architecture][buildroot_version]["sha256"],
+        sha256 = TOOLCHAIN_INFO[identifier]["sha256"],
         strip_prefix = identifier,
     )
 

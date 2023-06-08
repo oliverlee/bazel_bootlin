@@ -2,11 +2,12 @@ load(
     "@bazel_tools//tools/cpp:unix_cc_toolchain_config.bzl",
     unix_cc_toolchain_config = "cc_toolchain_config",
 )
-load("//toolchains:toolchain_info.bzl", "ALL_TOOLS")
+load("//toolchains:toolchain_info.bzl", "ALL_TOOLS", "TOOLCHAIN_INFO")
 
 def cc_toolchain_config(
         name,
         target_arch,
+        libc_impl,
         buildroot_version,
         toolchain_files_workspace,
         bazel_output_base,
@@ -16,8 +17,9 @@ def cc_toolchain_config(
     buildroot = "{}-buildroot-linux-gnu".format(
         target_arch_lower,
     )
-    gcc_version = "12.2.0"  # TODO this should be looked up
-    libc_version = "glibc_2.35"  # TODO this should be looked up
+    info = TOOLCHAIN_INFO["--".join([target_arch, libc_impl, buildroot_version])]
+    gcc_version = info["gcc_version"]
+    libc_version = info["libc_version"]
 
     # https://bazel.build/versions/6.0.0/rules/lib/cc_common#create_cc_toolchain_config_info
     host_system_name = "{}-linux".format(target_arch_lower)

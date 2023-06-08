@@ -13,6 +13,7 @@ filegroup(
 cc_toolchain_config(
     name = "toolchain_config",
     target_arch = "{target_arch}",
+    libc_impl = "{libc_impl}",
     buildroot_version = "{buildroot_version}",
     toolchain_files_workspace = "{toolchain_workspace_files}",
     bazel_output_base = "{bazel_output_base}",
