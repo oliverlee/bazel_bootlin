@@ -23,13 +23,8 @@ def _bootlin_toolchain_impl(rctx):
             "{}.br_real".format(tool) if tool in ["cpp", "gcc"] else tool
         )
 
-        # TODO simplify location
         rctx.file(
-            "tool_wrappers/{0}/{1}/{0}-linux-gnu-{1}-{2}".format(
-                architecture,
-                buildroot_version,
-                tool,
-            ),
+            "tool_wrappers/{}".format(tool),
             content = """#!/bin/bash
 exec external/{0}/bin/{1}-buildroot-linux-gnu-{2} $@
 """.format(

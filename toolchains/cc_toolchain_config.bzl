@@ -144,11 +144,7 @@ def cc_toolchain_config(
     ])
 
     tool_paths = {
-        tool: "tool_wrappers/{arch}/{version}/{arch}-linux-gnu-{version}-{tool}".format(
-            arch = target_arch,
-            version = buildroot_version,
-            tool = tool,
-        )
+        tool: "tool_wrappers/{}".format(tool)
         for tool in ALL_TOOLS
     }
 
