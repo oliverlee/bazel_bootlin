@@ -4,7 +4,7 @@ Defines a bootlin_toolchain rule to allow toolchain customization.
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load(
-    "@bazel_bootlin//toolchains:toolchain_info.bzl",
+    "@bazel_bootlin//toolchain:toolchain_info.bzl",
     "ALL_TOOLS",
     "TOOLCHAIN_INFO",
 )
@@ -44,7 +44,7 @@ exec external/{0}/bin/{1}-buildroot-linux-gnu-{2} $@
     )
 
     bazel_output_base = str(rctx.path(".")).removesuffix("/external/{}".format(rctx.attr.name))
-    template = Label("//toolchains:BUILD.toolchain.tpl")
+    template = Label("//toolchain:BUILD.toolchain.tpl")
 
     rctx.template(
         "BUILD.bazel",

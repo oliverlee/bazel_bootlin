@@ -1,5 +1,5 @@
 # //:BUILD.bazel
-load("@{bootlin_workspace}//toolchains:cc_toolchain_config.bzl", "cc_toolchain_config")
+load("@{bootlin_workspace}//toolchain:cc_toolchain_config.bzl", "cc_toolchain_config")
 
 filegroup(name = "empty")
 

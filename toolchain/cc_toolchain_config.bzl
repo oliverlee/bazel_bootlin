@@ -2,7 +2,7 @@ load(
     "@bazel_tools//tools/cpp:unix_cc_toolchain_config.bzl",
     unix_cc_toolchain_config = "cc_toolchain_config",
 )
-load("//toolchains:toolchain_info.bzl", "ALL_TOOLS", "TOOLCHAIN_INFO")
+load("//toolchain:toolchain_info.bzl", "ALL_TOOLS", "TOOLCHAIN_INFO")
 
 def cc_toolchain_config(
         name,

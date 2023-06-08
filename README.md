@@ -19,132 +19,89 @@ http_archive(
     # See release page for latest version url and sha.
 )
 
-load("@bazel_bootlin//toolchains:toolchains.bzl", "bootlin_all_toolchain_deps")
+load("@bazel_bootlin//:defs.bzl", "bootlin_toolchain")
 
-bootlin_all_toolchain_deps()
-```
+bootlin_toolchain(
+    name = "gcc_12_2",
+    architecture = "x86-64",
+    libc_impl = "glibc"
+    buildroot_version = "bleeding-edge-2022.08-1",
+)
 
-This will bring all of the available toolchains (and their associated
-[`platform`](https://bazel.build/docs/platforms) definitions) into your project.  The toolchains will
-only be downloaded when actually utilized, but if you prefer, you can only import a specific
-toolchain:
-
-```Starlark
-load("@bazel_bootlin//toolchains:toolchains.bzl", "bootlin_toolchain_deps")
-
-bootlin_toolchain_deps(
-    architecture = "x86-64-core-i7",
-    buildroot_version = "2020.08-1",
+register_toolchains(
+    "@gcc_12_2//:toolchain",
 )
 ```
 
 * `architecture` - refers to the [architecture
   string](https://toolchains.bootlin.com/toolchains.html) used by Bootlin.
+* `libc_impl` - refers to the libc implementation (e.g. `glibc`, `musl`, or `uclibc`).
 * `buildroot_version` - refers to the [Buildroot version
-  string](https://toolchains.bootlin.com/releases_x86-64-core-i7.html#:~:text=i7%2D%2Dglibc%2D%2Dstable%2D-,2021.11%2D1,-Download%20sha256)
-used by Bootlin.
+  string](https://toolchains.bootlin.com/releases_x86-64.html) (e.g. `bleeding-edge-2022.08-1`).
 
 ### Available Toolchains
 
-Currently `bazel_bootlin` only provides the "glibc--stable" version of the following Bootlin
-toolchains:
+Currently `bazel_bootlin` only provides toolchains listed in
+[toolchain/toolchain_info.bzl]. This list is easily expanded so feel free to add
+more as necessary.
 
-| Architecture | Buildroot Version |
-| --- | --- |
-| `x86-64` | `2021.11-5` |
-| `x86-64-core-i7` | `2020.08-1` |
-| `aarch64` | `2021.11-1`, `2020.08-1` |
-| `armv7-eabihf` | `2020.08-1` |
+### Building With Bootlin Toolchains
 
-This list is easily expanded.  If a toolchain of interest isn't available feel free to submit and
-[issue](https://github.com/agoessling/bazel_bootlin/issues), or alternatively take a look at
-`_AVAILABLE_TOOLCHAINS` in [`setup_toolchains.py`](setup_toolchains.py) and create a pull request.
+In order to enable toolchain selection, Bazel requires flag
+`--incompatible_enable_cc_toolchain_resolution`.
 
-### Platforms
+Additionally, you may also want to use
+`--action_env="BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1"` to prevent
+accidental use of any local toolchains.
 
-`bazel_bootlin` defines a different [`platform`](https://bazel.build/docs/platforms) for each
-toolchain that is included.  The platforms specify `constraint_value` for the canonical
-`@platforms//os:os` and `@platforms//cpu:cpu` `constraint_setting`:
-
-```Starlark
-platform(
-    name = "{architecture}-linux-gnu-{buildroot_version}",
-    constraint_values = [
-        "@platforms//cpu:{architecture}",
-        "@platforms//os:linux",
-        "@bazel_bootlin//platforms:{buildroot_version}",
-    ],
-)
-```
-
-Specifying one of these platforms will cause Bazel to use the corresponding toolchain during build.
-
-### Building With Toolchain
-
-In order to enable toolchain selection via platforms, Bazel requires a special flag along with the
-target platform:
-
-```Shell
-bazel build --incompatible_enable_cc_toolchain_resolution --platforms=@bazel_bootlin//platforms:{architecture}-linux-gnu-{buildroot_version} //...
-```
-
-The ergonomics can be improved by placing the flags in a
-[`.bazelrc`](https://bazel.build/docs/bazelrc) file:
+To avoid needing always specify these flags on the command line, you can add
+these to your [`.bazelrc`](https://bazel.build/docs/bazelrc) file:
 
 ```Shell
 build --incompatible_enable_cc_toolchain_resolution
-build --platforms=@bazel_bootlin//platforms:{architecture}-linux-gnu-{buildroot_version}
+build --action_env="BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1"
 ```
 
-Then a simple `bazel build //...` will utilize the desired toolchain.
+### Toolchain configuration
 
-### Toolchain customization
-
-Toolchains can also be registered to allow selection with toolchain resolution.
-
-```Starlark
-# //:WORKSPACE.bazel
-
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-
-http_archive(
-    name = "bazel_bootlin",
-    # See release page for latest version url and sha.
-)
-
-load("@bazel_bootlin//:defs.bzl", "bootlin_toolchain")
-
-bootlin_toolchain(
-    name = "gcc11",
-    architecture = "x86-64",
-    buildroot_version = "2022.08-1",
-)
-
-register_toolchains(
-    "@gcc11//:toolchain",
-)
-```
-
-Toolchains defined in this way can also be configured:
+Toolchains can configured during definition:
 
 ```Starlark
 # //:WORKSPACE.bazel
 
 bootlin_toolchain(
-    name = "gcc11",
+    name = "gcc_12_2",
     architecture = "x86-64",
-    buildroot_version = "2022.08-1",
-    extra_cxxflags = [
-        "-std=c++20",
+    libc_impl = "glibc"
+    buildroot_version = "bleeding-edge-2022.08-1",
+    extra_cxx_flags = [
+        "-std=c++23",
         "-fdiagnostics-color=always",
+        "-Wduplicated-cond",
+        "-Wduplicated-branches",
+        "-Wlogical-op",
+        "-Wuseless-cast",
+        "-Wshadow=compatible-local",
         "-Werror",
         "-Wall",
         "-Wextra",
         "-Wpedantic",
         "-Wconversion",
+        "-Wnon-virtual-dtor",
+        "-Wold-style-cast",
+        "-Wcast-align",
+        "-Wunused",
+        "-Woverloaded-virtual",
+        "-Wmisleading-indentation",
+        "-Wnull-dereference",
+        "-Wdouble-promotion",
+        "-Wformat=2",
+        "-Wimplicit-fallthrough",
     ],
 )
 ```
+
+### Toolchain selection
 
 If multiple toolchains are registered, toolchain resolution selects the first
 available and compatible toolchain.
@@ -155,13 +112,23 @@ can then be used to select a specific toolchain when running Bazel:
 # //:WORKSPACE.bazel
 
 register_toolchains(
-    "@gcc11//:toolchain",
-    "@gcc10//:toolchain",
-    "@gcc9//:toolchain",
-    "@llvm15//:...:"
+    "@gcc_12_2//:toolchain",
+    "@gcc_11_5//:toolchain",
+    "@clang_16_0//:...:"
 )
 ```
 
 ```Shell
-bazel build --extra_toolchains="@gcc11//:toolchain" //...
+bazel build --extra_toolchains="@gcc_12_2//:toolchain" //...
+```
+
+### Toolchain features
+
+`bootlin_toolchain` uses
+[unix_cc_tooclahin_config](https://github.com/bazelbuild/bazel/blob/master/tools/cpp/unix_cc_toolchain_config.bzl) and has same features.
+
+For example:
+
+```Shell
+bazel run <target> --features=asan
 ```
