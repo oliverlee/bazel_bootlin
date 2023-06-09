@@ -174,5 +174,5 @@ def cc_toolchain_config(
         coverage_compile_flags = coverage_compile_flags,
         coverage_link_flags = coverage_link_flags,
         builtin_sysroot = sysroot_path,
-        supports_start_end_lib = True,
+        supports_start_end_lib = False,
     )
