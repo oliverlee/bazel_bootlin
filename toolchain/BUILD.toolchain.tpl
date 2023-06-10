@@ -6,7 +6,7 @@ filegroup(name = "empty")
 filegroup(
     name = "all_files",
     srcs = [
-        "@{toolchain_workspace_files}",
+        "@{toolchain_files_workspace}",
     ] + glob(["tool_wrappers/**"]),
 )
 
@@ -15,7 +15,7 @@ cc_toolchain_config(
     target_arch = "{target_arch}",
     libc_impl = "{libc_impl}",
     buildroot_version = "{buildroot_version}",
-    toolchain_files_workspace = "{toolchain_workspace_files}",
+    toolchain_files_workspace = "{toolchain_files_workspace}",
     bazel_output_base = "{bazel_output_base}",
     extra_cxx_flags = {extra_cxx_flags},
     extra_link_flags = {extra_link_flags},

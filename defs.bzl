@@ -52,13 +52,24 @@ exec external/{0}/bin/{1}-buildroot-linux-gnu-{2} $@
         {
             "{bazel_output_base}": bazel_output_base,
             "{bootlin_workspace}": template.workspace_name,
-            "{toolchain_workspace_files}": files_workspace,
+            "{toolchain_files_workspace}": files_workspace,
             "{target_arch}": architecture,
             "{libc_impl}": libc_impl,
             "{buildroot_version}": buildroot_version,
             "{extra_cxx_flags}": as_string(rctx.attr.extra_cxx_flags),
             "{extra_link_flags}": as_string(rctx.attr.extra_link_flags),
         },
+    )
+
+    rctx.file(
+        "sysroot_path.bzl",
+        content = """
+SYSROOT_PATH="{bazel_output_base}/external/{files_workspace}/x86_64-buildroot-linux-gnu/sysroot"
+""".format(
+            bazel_output_base = bazel_output_base,
+            files_workspace = files_workspace,
+        ),
+        executable = False,
     )
 
 _bootlin_toolchain = repository_rule(
