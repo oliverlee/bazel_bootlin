@@ -4,7 +4,7 @@ Defines a bootlin_toolchain rule to allow toolchain customization.
 
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load(
-    "@bazel_bootlin//toolchain:toolchain_info.bzl",
+    "//toolchain:toolchain_info.bzl",
     "ALL_TOOLS",
     "TOOLCHAIN_INFO",
 )
@@ -123,6 +123,15 @@ filegroup(
             architecture,
             identifier,
         ),
+        patch_cmds = [
+            """
+echo 'filegroup(' >> x86_64-buildroot-linux-gnu/sysroot/BUILD.bazel
+echo '    name = "sysroot",' >> x86_64-buildroot-linux-gnu/sysroot/BUILD.bazel
+echo '    srcs = glob(["**"]),' >> x86_64-buildroot-linux-gnu/sysroot/BUILD.bazel
+echo '    visibility = ["//visibility:public"],' >> x86_64-buildroot-linux-gnu/sysroot/BUILD.bazel
+echo ')' >> x86_64-buildroot-linux-gnu/sysroot/BUILD.bazel
+""",
+        ],
         sha256 = TOOLCHAIN_INFO[identifier]["sha256"],
         strip_prefix = identifier,
     )
