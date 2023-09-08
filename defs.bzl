@@ -52,6 +52,7 @@ exec external/{0}/bin/{1}-buildroot-linux-gnu-{2} $@
         {
             "{bazel_output_base}": bazel_output_base,
             "{bootlin_workspace}": template.workspace_name,
+            "{identifier}": rctx.attr.identifier,
             "{toolchain_files_workspace}": files_workspace,
             "{target_arch}": architecture,
             "{libc_impl}": libc_impl,
@@ -74,6 +75,10 @@ SYSROOT_PATH="{bazel_output_base}/external/{files_workspace}/x86_64-buildroot-li
 
 _bootlin_toolchain = repository_rule(
     attrs = {
+        "identifier": attr.string(
+            mandatory = True,
+            doc = "bootlin identifier, key into TOOLCHAIN_INFO",
+        ),
         "architecture": attr.string(
             mandatory = True,
         ),
@@ -98,14 +103,10 @@ _bootlin_toolchain = repository_rule(
 )
 
 def bootlin_toolchain(**kwargs):
-    architecture = kwargs["architecture"]
-    libc_impl = kwargs["libc_impl"]
-    buildroot_version = kwargs["buildroot_version"]
-
     identifier = "--".join([
-        architecture,
-        libc_impl,
-        buildroot_version,
+        kwargs["architecture"],
+        kwargs["libc_impl"],
+        kwargs["buildroot_version"],
     ])
 
     files_workspace = "{}_files".format(kwargs["name"])
@@ -120,7 +121,7 @@ filegroup(
 """.format(files_workspace = files_workspace),
         url = ("https://toolchains.bootlin.com/downloads/releases/toolchains/" +
                "{}/tarballs/{}.tar.bz2").format(
-            architecture,
+            kwargs["architecture"],
             identifier,
         ),
         patch_cmds = [
@@ -136,4 +137,8 @@ echo ')' >> x86_64-buildroot-linux-gnu/sysroot/BUILD.bazel
         strip_prefix = identifier,
     )
 
-    _bootlin_toolchain(**kwargs)
+    # Handle microarchitecture suffixes.
+    if kwargs["architecture"].startswith("x86-64"):
+        kwargs["architecture"] = "x86-64"
+
+    _bootlin_toolchain(identifier = identifier, **kwargs)

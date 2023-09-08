@@ -12,6 +12,7 @@ filegroup(
 
 cc_toolchain_config(
     name = "toolchain_config",
+    identifier = "{identifier}",
     target_arch = "{target_arch}",
     libc_impl = "{libc_impl}",
     buildroot_version = "{buildroot_version}",
