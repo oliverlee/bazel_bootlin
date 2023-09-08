@@ -6,6 +6,7 @@ load("//toolchain:toolchain_info.bzl", "ALL_TOOLS", "TOOLCHAIN_INFO")
 
 def cc_toolchain_config(
         name,
+        identifier,
         target_arch,
         libc_impl,
         buildroot_version,
@@ -17,7 +18,7 @@ def cc_toolchain_config(
     buildroot = "{}-buildroot-linux-gnu".format(
         target_arch_lower,
     )
-    info = TOOLCHAIN_INFO["--".join([target_arch, libc_impl, buildroot_version])]
+    info = TOOLCHAIN_INFO[identifier]
     gcc_version = info["gcc_version"]
     libc_version = info["libc_version"]
 
