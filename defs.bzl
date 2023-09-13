@@ -103,11 +103,16 @@ _bootlin_toolchain = repository_rule(
 )
 
 def bootlin_toolchain(**kwargs):
+    # Handle microarchitecture suffixes.
+    microarch = kwargs["architecture"]
+    macroarch = "x86-64" if microarch.startswith("x86-64") else microarch
+
     identifier = "--".join([
-        kwargs["architecture"],
+        microarch,
         kwargs["libc_impl"],
         kwargs["buildroot_version"],
     ])
+    kwargs["architecture"] = macroarch
 
     files_workspace = "{}_files".format(kwargs["name"])
     http_archive(
@@ -120,25 +125,21 @@ filegroup(
 )
 """.format(files_workspace = files_workspace),
         url = ("https://toolchains.bootlin.com/downloads/releases/toolchains/" +
-               "{}/tarballs/{}.tar.bz2").format(
-            kwargs["architecture"],
-            identifier,
+               "{arch}/tarballs/{iden}.tar.bz2").format(
+            arch = microarch,
+            iden = identifier,
         ),
         patch_cmds = [
             """
-echo 'filegroup(' >> x86_64-buildroot-linux-gnu/sysroot/BUILD.bazel
-echo '    name = "sysroot",' >> x86_64-buildroot-linux-gnu/sysroot/BUILD.bazel
-echo '    srcs = glob(["**"]),' >> x86_64-buildroot-linux-gnu/sysroot/BUILD.bazel
-echo '    visibility = ["//visibility:public"],' >> x86_64-buildroot-linux-gnu/sysroot/BUILD.bazel
-echo ')' >> x86_64-buildroot-linux-gnu/sysroot/BUILD.bazel
-""",
+echo 'filegroup(' >> {arch}-buildroot-linux-gnu/sysroot/BUILD.bazel
+echo '    name = "sysroot",' >> {arch}-buildroot-linux-gnu/sysroot/BUILD.bazel
+echo '    srcs = glob(["**"]),' >> {arch}-buildroot-linux-gnu/sysroot/BUILD.bazel
+echo '    visibility = ["//visibility:public"],' >> {arch}-buildroot-linux-gnu/sysroot/BUILD.bazel
+echo ')' >> {arch}-buildroot-linux-gnu/sysroot/BUILD.bazel
+""".format(arch = macroarch.replace("-", "_")),
         ],
         sha256 = TOOLCHAIN_INFO[identifier]["sha256"],
         strip_prefix = identifier,
     )
-
-    # Handle microarchitecture suffixes.
-    if kwargs["architecture"].startswith("x86-64"):
-        kwargs["architecture"] = "x86-64"
 
     _bootlin_toolchain(identifier = identifier, **kwargs)
