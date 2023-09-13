@@ -9,6 +9,11 @@ TOOLCHAIN_INFO = {
         "gcc_version": "13.2.0",
         "libc_version": "glibc_2.37",
     },
+    "aarch64--glibc--bleeding-edge-2023.08-1": {
+        "sha256": "62094460b853970dcba91cae4314bfd1210bb2963be540f7b69be882f5f795ba",
+        "gcc_version": "13.2.0",
+        "libc_version": "glibc_2.37",
+    },
 }
 
 ALL_TOOLS = ["ar", "cpp", "gcc", "gcov", "ld", "nm", "objdump", "strip"]
