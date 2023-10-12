@@ -16,4 +16,14 @@ TOOLCHAIN_INFO = {
     },
 }
 
-ALL_TOOLS = ["ar", "cpp", "gcc", "gcov", "ld", "nm", "objdump", "strip"]
+ALL_TOOLS = [
+    "ar",
+    "cpp",
+    "gcc",
+    "gcov",
+    "ld",
+    "nm",
+    "objcopy",
+    "objdump",
+    "strip",
+]
