@@ -126,7 +126,7 @@ def cc_toolchain_config(
             "{buildroot}/include/c++/{gcc_version}",
             "{buildroot}/include/c++/{gcc_version}/{buildroot}",
             "{buildroot}/include/c++/{gcc_version}/backward",
-            "lib/gcc/{buildroot}/{gcc_version}include",
+            "lib/gcc/{buildroot}/{gcc_version}/include",
             "lib/gcc/{buildroot}/{gcc_version}/include-fixed",
         ]
     ]
