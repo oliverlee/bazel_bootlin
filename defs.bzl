@@ -26,11 +26,32 @@ def _bootlin_toolchain_impl(rctx):
         rctx.file(
             "tool_wrappers/{}".format(tool),
             content = """#!/bin/bash
-exec external/{0}/bin/{1}-buildroot-linux-gnu-{2} $@
+
+br_tool_relpath="external/{files_workspace}/bin/{arch}-buildroot-linux-gnu-{br_tool}"
+
+if [[ -f "$br_tool_relpath" ]]; then
+  exec "$br_tool_relpath" "$@"
+elif [[ ${{BASH_SOURCE[0]}} == "/"* ]]; then
+  # Some consumers of `CcToolchainConfigInfo` (e.g. `cmake` from rules_foreign_cc)
+  # change CWD and call $CC (this script) with its absolute path.
+  # the execroot (i.e. `cmake` from `rules_foreign_cc`) and call CC . For cases
+  # like this, we try to find the "buildroot_tool" relative to this script.
+  #
+  # For more information, see
+  # https://github.com/grailbio/bazel-toolchain/blob/master/toolchain/cc_wrapper.sh.tpl
+
+  # This script is at _execroot_/external/_files_workspace_/tool_wrappers/*
+  execroot_dir="${{BASH_SOURCE[0]%/*/*/*/*}}"
+  tool="${{execroot_dir}}/${{br_tool_relpath}}"
+  exec "$tool" "$@"
+else
+  echo >&2 "ERROR: could not find {br_tool}; PWD=\"${{PWD}}\"; PATH=\"${{PATH}}\"."
+  exit 5
+fi
 """.format(
-                files_workspace,
-                platform_arch,
-                buildroot_tool,
+                files_workspace = files_workspace,
+                arch = platform_arch,
+                br_tool = buildroot_tool,
             ),
         )
 
